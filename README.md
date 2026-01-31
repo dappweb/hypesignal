@@ -108,21 +108,122 @@ Notes:
 - The image starts with `npm run dev` (Next.js dev server). The script removes `trading.db` on start.
 - Do not bake secrets into images; pass via `--env-file` or `-e`.
 
-## Deployment to EigenCompute (Verifiable Agent Runtime)
-Make sure to:
-1. have the EigenX CLI installed in order to deploy your application to EigenCompute.
-2. you're logged into Docker
-3. have generated and stored your private key
-  - `eigenx auth generate --store`
+## 🌐 What is EigenCompute?
 
+[EigenCompute](https://docs.eigencloud.xyz/products/eigencompute/eigencompute-overview) is a **Verifiable Compute Layer** built on EigenLayer that enables decentralized, trust-minimized cloud computing with cryptographic proofs. It's the ideal platform for running AI trading agents like HypeSignal.
 
-Given you have a `.env` file and a Dockerfile, executing the following:
+### Why EigenCompute for Trading Agents?
 
+| Feature | Benefit for HypeSignal |
+|---------|------------------------|
+| **🔒 Verifiable Execution** | Cryptographic proofs ensure your trading logic executes exactly as intended—no operator tampering |
+| **💰 Restaked Security** | Secured by EIGEN/ETH staking; dishonest operators face slashing penalties |
+| **🛡️ TEE Isolation** | Trusted Execution Environments protect your API keys and trading strategies |
+| **🔗 On-chain Composability** | Seamlessly integrate with DeFi protocols and smart contracts |
+| **🐳 Docker Compatible** | Deploy existing containers with minimal changes |
+
+### Key Features
+
+1. **Off-chain, Verifiable Computation**
+   - Execute AI workloads off-chain while providing cryptographic proofs of honest computation
+   - Bridges Ethereum-grade trust with cloud-scale performance
+
+2. **Hardware-based Security (TEEs)**
+   - Code runs in isolated, tamper-proof Trusted Execution Environments
+   - Attestation mechanisms prove computation ran as specified
+
+3. **Economic Guarantees**
+   - Operators stake collateral that gets slashed for malicious behavior
+   - Aligns incentives for honest operation
+
+4. **EigenAI Integration**
+   - Deterministically verify AI model inference
+   - Critical for trading applications where model calls must not be tampered with
+
+### EigenCompute vs Traditional Cloud
+
+| Aspect | Traditional Cloud | EigenCompute |
+|--------|-------------------|--------------|
+| Trust Model | Trust the provider | Cryptographically verifiable |
+| Execution Proof | None ("black box") | Attestation + proofs |
+| Security | Provider controls | TEE + staking guarantees |
+| Transparency | Limited | Fully auditable |
+| Ideal For | General apps | High-stakes AI/DeFi apps |
+
+📚 **Learn More**: [EigenCompute Documentation](https://docs.eigencloud.xyz/products/eigencompute/eigencompute-overview)
+
+---
+
+## 🚀 How to Use EigenCompute
+
+This section provides a complete guide to deploying HypeSignal on EigenCompute.
+
+### Prerequisites
+
+Before deploying, ensure you have:
+
+| Requirement | Description |
+|-------------|-------------|
+| **Allowlisted Address** | Contact EigenLayer team to get your address allowlisted |
+| **Docker** | Required to build and push container images |
+| **Sepolia ETH** | For deployment transactions (get from [Google Cloud Faucet](https://cloud.google.com/application/web3/faucet/ethereum/sepolia) or [Alchemy Faucet](https://www.alchemy.com/faucets/ethereum-sepolia)) |
+| **Environment Variables** | Your `.env` file with API keys configured |
+
+### Step 1: Install EigenX CLI
+
+**macOS/Linux:**
+```bash
+curl -fsSL https://eigenx-scripts.s3.us-east-1.amazonaws.com/install-eigenx.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+curl -fsSL https://eigenx-scripts.s3.us-east-1.amazonaws.com/install-eigenx.ps1 | powershell -
+```
+
+Verify installation:
+```bash
+eigenx --version
+```
+
+### Step 2: Authenticate
+
+Generate a new keypair and store it locally:
+```bash
+eigenx auth generate --store
+```
+
+Or log in with an existing private key:
+```bash
+eigenx auth login
+```
+
+Check your authenticated address:
+```bash
+eigenx auth whoami
+```
+
+### Step 3: Prepare Your Environment
+
+1. **Configure environment variables:**
+```bash
+cp .env.example .env
+# Edit .env with your API keys
+```
+
+2. **Log into Docker:**
+```bash
+docker login
+```
+
+### Step 4: Deploy to EigenCompute
+
+From your project directory with `Dockerfile` and `.env`:
 ```bash
 eigenx app deploy
 ```
 
-should instruct you with building a Docker image or using a pre-existing one, then proceeding with the deployment as shown below:
+The CLI will guide you through:
 
 ```
 Found Dockerfile in current directory.
@@ -143,7 +244,6 @@ App name selection:
 Building base image from Dockerfile...
 #0 building with "desktop-linux" instance using docker driver
 ...
-...
 Your container will deploy with the following environment variables:
 
 No public variables found
@@ -153,24 +253,11 @@ No public variables found
 PRIVATE VARIABLE          VALUE
 ----------------          -----
 TWITTER_API_KEY           <key>
-BASE_TESTNET_RPC_URL      <url>
 EIGENAI_API_KEY           <key>
-CDP_WALLET_SECRET         <secret>
-NETWORK_ENV               testnet
-ETHEREUM_MAINNET_RPC_URL  <url>
-CDP_API_KEY_ID            <id>
-CDP_API_KEY_SECRET        <secret>
-ETHEREUM_TESTNET_RPC_URL  <url>
 HYPERLIQUID_PRIVATE_KEY   <key>
-HYPERLIQUID_ENVIRONMENT   testnet
-HYPERLIQUID_ALLOWED_MARKETS (blank for all)
-HYPERLIQUID_SLIPPAGE_BPS  50
-MAX_TRADE_AMOUNT_USD      30
-IDEMPOTENCY_KEY           your_unique_idempotency_key
-BASE_MAINNET_RPC_URL      <url>
-TWEET_MAX_AGE_HOURS       6
+...
 
-? Is this categorization correct? Public variables will be in plaintext onchain. Private variables will be encrypted onchain. (y/N) y
+? Is this categorization correct? (y/N) y
 
 Deploying new app...
 App saved with name: hypesignal
@@ -182,11 +269,17 @@ Status: Deploying
 IP: No IP assigned
 EVM Address: <address>
 Solana Address: <address>
+```
 
-# Wait several seconds for deployment
+### Step 5: Verify Deployment
 
-$ eigenx app info hypesignal
+Wait a few seconds, then check your app status:
+```bash
+eigenx app info hypesignal
+```
 
+Expected output when running:
+```
 App Name: hypesignal
 App ID: <id>
 Latest Release Time: <time>
@@ -196,9 +289,57 @@ EVM Address: <address>
 Solana Address: <address>
 ```
 
-**Congrats your agent is now running on EigenCompute!**
+🎉 **Congrats! Your agent is now running on EigenCompute!**
 
+### Managing Your Deployment
 
+| Command | Description |
+|---------|-------------|
+| `eigenx app list` | List all your deployed apps |
+| `eigenx app info <name>` | Get details about a specific app |
+| `eigenx app logs <name>` | View application logs |
+| `eigenx app stop <name>` | Stop a running app |
+| `eigenx app delete <name>` | Delete an app permanently |
+| `eigenx app deploy` | Deploy or update an app |
+
+### Accessing Your App
+
+Once deployed, access your HypeSignal dashboard at:
+```
+http://<your-app-ip>:3000
+```
+
+Get your app's IP address with:
+```bash
+eigenx app info hypesignal
+```
+
+### Updating Your Deployment
+
+To deploy updates:
+```bash
+# Make your code changes, then:
+eigenx app deploy
+```
+
+The CLI will detect the existing app and prompt you to update it.
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| "Not allowlisted" | Contact EigenLayer team to allowlist your address |
+| "Insufficient funds" | Get Sepolia ETH from a faucet |
+| "Docker not found" | Install and start Docker Desktop |
+| "Build failed" | Check your Dockerfile and run `docker build .` locally first |
+| App not starting | Check logs with `eigenx app logs hypesignal` |
+
+📚 **More Resources:**
+- [EigenX CLI GitHub](https://github.com/Layr-Labs/eigenx-cli)
+- [EigenCloud Forum](https://forum.eigenlayer.xyz/)
+- [Building on EigenCloud Tutorial (YouTube)](https://www.youtube.com/watch?v=7x1NNbbg2TM)
+
+---
 
 ## 🚀 Usage
 
