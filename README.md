@@ -108,6 +108,52 @@ Notes:
 - The image starts with `npm run dev` (Next.js dev server). The script removes `trading.db` on start.
 - Do not bake secrets into images; pass via `--env-file` or `-e`.
 
+## 🌐 What is EigenCompute?
+
+[EigenCompute](https://docs.eigencloud.xyz/products/eigencompute/eigencompute-overview) is a **Verifiable Compute Layer** built on EigenLayer that enables decentralized, trust-minimized cloud computing with cryptographic proofs. It's the ideal platform for running AI trading agents like HypeSignal.
+
+### Why EigenCompute for Trading Agents?
+
+| Feature | Benefit for HypeSignal |
+|---------|------------------------|
+| **🔒 Verifiable Execution** | Cryptographic proofs ensure your trading logic executes exactly as intended—no operator tampering |
+| **💰 Restaked Security** | Secured by EIGEN/ETH staking; dishonest operators face slashing penalties |
+| **🛡️ TEE Isolation** | Trusted Execution Environments protect your API keys and trading strategies |
+| **🔗 On-chain Composability** | Seamlessly integrate with DeFi protocols and smart contracts |
+| **🐳 Docker Compatible** | Deploy existing containers with minimal changes |
+
+### Key Features
+
+1. **Off-chain, Verifiable Computation**
+   - Execute AI workloads off-chain while providing cryptographic proofs of honest computation
+   - Bridges Ethereum-grade trust with cloud-scale performance
+
+2. **Hardware-based Security (TEEs)**
+   - Code runs in isolated, tamper-proof Trusted Execution Environments
+   - Attestation mechanisms prove computation ran as specified
+
+3. **Economic Guarantees**
+   - Operators stake collateral that gets slashed for malicious behavior
+   - Aligns incentives for honest operation
+
+4. **EigenAI Integration**
+   - Deterministically verify AI model inference
+   - Critical for trading applications where model calls must not be tampered with
+
+### EigenCompute vs Traditional Cloud
+
+| Aspect | Traditional Cloud | EigenCompute |
+|--------|-------------------|--------------|
+| Trust Model | Trust the provider | Cryptographically verifiable |
+| Execution Proof | None ("black box") | Attestation + proofs |
+| Security | Provider controls | TEE + staking guarantees |
+| Transparency | Limited | Fully auditable |
+| Ideal For | General apps | High-stakes AI/DeFi apps |
+
+📚 **Learn More**: [EigenCompute Documentation](https://docs.eigencloud.xyz/products/eigencompute/eigencompute-overview)
+
+---
+
 ## Deployment to EigenCompute (Verifiable Agent Runtime)
 Make sure to:
 1. have the EigenX CLI installed in order to deploy your application to EigenCompute.
